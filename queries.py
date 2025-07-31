@@ -90,5 +90,19 @@ QUERIES = {
             ds.supplier, dd.month
         ORDER BY
             ds.supplier, dd.month
+    """,
+    'retail_analysis': """
+        SELECT 
+            SUM(retail_sales) retail_sales, 
+            SUM(retail_transfers) as retail_transfers, 
+            CONCAT(dd.year, '-', LPAD(dd.month::text, 2, '0')) as time, 
+            dd.quarter, 
+            di.item_type
+        FROM fact_transaction ft 
+        JOIN dim_date dd USING (date_id)
+        JOIN dim_item di USING (item_id)
+        WHERE year=2019
+        GROUP BY item_type, month, quarter, year
+        ORDER BY month, item_type
     """
 }

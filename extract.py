@@ -12,7 +12,8 @@ print("Extracting Data for Analysis...")
 # query(QUERIES['overtime_sales']).to_parquet('data/overtime_sales.parquet')
 # query(QUERIES['total_retail_transfers']).to_parquet('data/total_retail_transfers.parquet')
 # query(QUERIES['supplierContribution']).to_parquet('data/supplierContribution.parquet')
-query(QUERIES['monthly_sales_by_supplier']).to_parquet('data/monthly_sales_by_supplier.parquet')
+# query(QUERIES['monthly_sales_by_supplier']).to_parquet('data/monthly_sales_by_supplier.parquet')
+query(QUERIES['retail_analysis']).to_parquet('data/retail_analysis.parquet')
 
 
 print("Extracting Data for Overview...")

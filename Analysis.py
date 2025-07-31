@@ -449,9 +449,83 @@ with t3:
     """)
 
 
+
+
 with t4:
-    pass
-    
+    st.subheader("Operational Efficiency Analysis")
+    st.write("""
+        In this section, we will examine the relationship between sales, and transfers. As a recap, retail transfer is, as noted on the dataset
+        description, "Cases of product transferred to DLC(ABS) dispensaries", this essentially means restocking events, so this can give us a great perspective
+        on how efficient ABS retail stores is at restocking their items. 
+    """)
+
+   
+
+    st.write("""
+        We can do this by crafting a metric using what's available here: retail sales, and retails transfers. And since what we are
+        interested in is about restock operation efficiency, this metric will be calculated as:
+        """)
+
+    st.latex(r'''
+        \text{Efficiency Metric} = \frac{\text{Retail Transfers}}{\text{Retail Sales}}
+        ''')
+
+    st.markdown("""
+    Where:
+    - A value of **1** indicates optimal efficiency.
+    - Values **less than 1** suggest restocking might be too slow.
+    - Values **greater than 1** imply the stores are supplying more than they are selling.
+    """)
+
+    retail_analysis = load(r'data/retail_analysis.parquet')
+    print(retail_analysis.columns)
+    retail_analysis['time'] = pd.to_datetime(retail_analysis['time'])
+ 
+    item_type_list = retail_analysis['item_type'].unique()
+
+    selected_item = st.selectbox(
+        "Select an Item Type:",
+        item_type_list
+    )
+
+    df_item = retail_analysis[retail_analysis['item_type'] == selected_item].sort_values(by='time')
+    st.subheader(f"Sales vs. Restocking for: {selected_item}")
+
+    fig = go.Figure()
+    fig.add_trace(go.Bar(x=df_item['time'], y=df_item['retail_sales'], name='Retail Sales'))
+    fig.add_trace(go.Scatter(x=df_item['time'], y=df_item['retail_transfers'], name='Restocking Transfers', mode='lines+markers', line=dict(color='red')))
+
+    fig.update_layout(
+        xaxis_title='Month of 2019',
+        yaxis_title='Cases',
+        template='plotly_white',
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+    # --- Efficiency Calculation ---
+    st.subheader(f"Inventory Efficiency for {selected_item}")
+
+    # Calculate total sales and transfers for the selected item for the whole year
+    total_sales = df_item['retail_sales'].sum()
+    total_transfers = df_item['retail_transfers'].sum()
+
+    # Calculate the ratio, handling cases where sales might be zero
+    if total_sales > 0:
+        efficiency_ratio = total_transfers / total_sales
+        st.metric(
+            label=f"Annual Transfer-to-Sales Ratio",
+            value=f"{efficiency_ratio:.2f}",
+            help="For every 1 case sold, this many cases were transferred. A ratio near 1.0 is highly efficient."
+        )
+    else:
+        st.metric(label=f"Annual Transfer-to-Sales Ratio", value="N/A (No Sales)")
+
+    st.markdown("""
+    ---
+    ### Regarding Sales Prediction
+    Your idea to project sales into 2020 is an excellent next step for a more advanced analysis. Given the sparse data for 2020 (only 4 months), you would likely need to use a time-series model that can handle missing data, or focus on creating a forecast based purely on the complete 2019 seasonal pattern. This is a great "stretch goal" for the project!
+    """)
 
 
     
