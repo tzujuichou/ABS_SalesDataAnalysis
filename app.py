@@ -7,6 +7,18 @@ hide_st_style = """
             <style>
             #MainMenu {visibility: hidden;}
             footer {visibility: hidden;}
+            footer {
+            visibility: hidden;
+                }
+            footer:after {
+                content:'goodbye'; 
+                visibility: visible;
+                display: block;
+                position: relative;
+                #background-color: red;
+                padding: 5px;
+                top: 2px;
+            }
             [data-testid="stStatusWidget"] {display: none;}
             header {visibility: hidden;}
             </style>
