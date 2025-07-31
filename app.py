@@ -7,7 +7,7 @@ hide_st_style = """
             <style>
             #MainMenu {visibility: hidden;}
             footer {visibility: hidden;}
-            [data-testid="stFooter"] {visibility: none;}
+            [data-testid="stStatusWidget"] {display: none;}
             header {visibility: hidden;}
             </style>
             """

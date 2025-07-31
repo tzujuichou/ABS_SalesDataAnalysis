@@ -503,14 +503,11 @@ with t4:
     )
     st.plotly_chart(fig, use_container_width=True)
 
-    # --- Efficiency Calculation ---
     st.subheader(f"Inventory Efficiency for {selected_item}")
 
-    # Calculate total sales and transfers for the selected item for the whole year
     total_sales = df_item['retail_sales'].sum()
     total_transfers = df_item['retail_transfers'].sum()
 
-    # Calculate the ratio, handling cases where sales might be zero
     if total_sales > 0:
         efficiency_ratio = total_transfers / total_sales
         st.metric(
