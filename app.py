@@ -3,7 +3,7 @@ import pandas as pd
 
 hide_toolbar_style = """
             <style>
-            div[data-testid="stToolbar"] {visibility: hidden;}
+            #MainMenu {visibility: hidden;}
             </style>
             """
 st.markdown(hide_toolbar_style, unsafe_allow_html=True)
