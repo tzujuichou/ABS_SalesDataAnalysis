@@ -36,7 +36,7 @@ hide_elements_style = """
             }
             </style>
             """
-st.markdown(hide_specific_elements_style, unsafe_allow_html=True)
+st.markdown(hide_elements_style, unsafe_allow_html=True)
 
 
 pages = st.navigation([st.Page("Overview.py"), st.Page("Analysis.py")])
