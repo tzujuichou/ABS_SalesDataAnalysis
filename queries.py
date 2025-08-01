@@ -104,5 +104,18 @@ QUERIES = {
         WHERE year=2019
         GROUP BY item_type, month, quarter, year
         ORDER BY month, item_type
+    """,
+    'item_details_2019': """
+    SELECT DISTINCT
+        di.item_type,
+        di.item_description
+    FROM
+        fact_transaction ft
+        JOIN dim_item di USING (item_id)
+        JOIN dim_date dd USING (date_id)
+    WHERE
+        dd.year = 2019
+    ORDER BY
+        di.item_type, di.item_description;
     """
 }

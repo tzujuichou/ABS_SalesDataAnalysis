@@ -19,7 +19,15 @@ t1, t2, t3, t4 = st.tabs(['General Exploration',
 
 with t1:
 
-    st.write('Lets first get some general understanding of the dataset')
+    st.subheader("In a Nutshell:")
+    st.write("""
+    This is a dataset containing monthly sales (in cases of products sold) and restocking activities for different types of
+    products for Montgomery County, MD. For each of the row a supplier who provide that product and the time when that activity happen is also recorded.
+    """)
+    st.write('''Again, as metioned in the "Data" tab in Overview, because of the availability of data, a choice have been made to
+    focus on data from year 2019, so now lets explore some facts about this dataset:
+
+    ''')
     col1, col2 = st.columns(2)
 
     with col1:
@@ -49,7 +57,7 @@ with t1:
     overtime_sales,
     x='time',
     y=['retail_sales', 'retail_transfers', 'warehouse_sales'],
-    title='Three Metrics Over 2019',
+    # title='Three Metrics Over 2019',
     markers=True
     )
     fig.update_xaxes(
@@ -57,30 +65,35 @@ with t1:
     tickformat="%b\n%Y",             
     range=['2018-12-15', '2019-12-31'] 
     )
-
+    st.markdown("#### This project will focus on the following 3 metrics:")
     st.plotly_chart(fig, use_container_width=True)
 
     st.markdown(
     """
     ---
-    💡 **In the Next Tab:** We will be exploring the relationships between 
-    these three metrics and analyze how any two or all three metrics correlate or affect each other in the next tab .
+    **In the Next Tabs:** We will be exploring the relationships between 
+    these three metrics more about this dataset. Scroll up and go to the next tab!
     """
     )
 
 
 
 with t2:
-    st.subheader("So what is the data telling us about these 3 metrics?")
+    st.subheader("So what is the data telling us about the two different sales?")
 
-    # Sales Channel Comparison
     st.write("""
-    Lets first dive deeper and have a detail view into the porportion of contribution of different sales channels.
+    Let's dive deeper and have a detail view into the porportion of contribution of different sales channels.
     """)
     overtime_sales = load('data/overtime_sales.parquet')
     overtime_sales = overtime_sales.sort_values(by='time')
-
-    # Bigger Picture: Whos the main contributor
+    total_warehouse = overtime_sales['warehouse_sales'].sum()
+    total_retail = overtime_sales['retail_sales'].sum()
+    total_all = total_warehouse + total_retail
+    warehouse_pct_overall = (total_warehouse / total_all) * 100
+    st.metric(
+    label="Warehouse Sales (% of Total Sales)",
+    value=f"{warehouse_pct_overall:.1f}%"
+    )
     fig = px.area(overtime_sales, x='time', y=['warehouse_sales', 'retail_sales'], 
                 title = 'Bigger Pciture: Sales Channels Proportion',   labels={'value': 'Sales (cases)', 'time': 'Month', 'variable': 'Channel'},
                 line_group='variable')
@@ -94,9 +107,24 @@ with t2:
     st.plotly_chart(fig, use_container_width=True)
 
 
-    # Trends Difference
+
+    st.write("""
+    Based on the data, Montgomery County ABS has 2 sales channels,
+    and it operates as two distinct businesse: A B2B wholesale where the product is sold to the private owned
+    businesses, and a much smaller B2C where the product is sold to customers through ABS retail stores. 
+    """)
+
+    st.write("""
+    Now that we have an idea of the proportion of the two channels, lets look at the trend now.
+    The following chart shows the actual sales trends for each channel over time.
+    """)
+
+
     fig = px.line(overtime_sales, x='time', y=['warehouse_sales', 'retail_sales'], 
-                title = 'Sales Channels Trend Over Time',   labels={'value': 'Sales (cases)', 'time': 'Month', 'variable': 'Channel'},
+                title = 'Sales Channels Trend Over Time',   
+                labels={'value': 'Sales (cases)', 
+                        'time': 'Month', 
+                        'variable': 'Channel'},
                 line_group='variable')
 
     fig.update_xaxes(
@@ -107,15 +135,12 @@ with t2:
 
     st.plotly_chart(fig, use_container_width=True)
 
-    st.subheader("Investigating the Sales Channel Correlation")
     st.write("""
-    While the trends look similar, the statistical correlation is moderately positive (0.57).
-    A scatterplot helps visualize this relationship more accurately.
+    Both channels share borad seasonal trends like the spike in May, or the slight dip in September (though not to prominent for retail sales).
+    However, whether or not the trends are linked are uncertain. So lets try to verify this by checking the 
+    correlation between the two channels:
     """)
-
-    corr = overtime_sales[['retail_sales', 'warehouse_sales']].corr()
-    st.write("Correlation between Retail and Warehouse Sales:")
-    st.dataframe(corr)
+    
     fig_corr = px.scatter(
         overtime_sales,
         x='retail_sales',
@@ -123,7 +148,7 @@ with t2:
         title='Warehouse Sales vs. Retail Sales (Monthly, 2019)',
         labels={'retail_sales': 'Total Retail Sales', 'warehouse_sales': 'Total Warehouse Sales'},
         trendline='ols',
-        trendline_scope="overall", # This adds a "line of best fit" to show the trend
+        trendline_scope="overall", 
         color_discrete_sequence=['yellow']
     )
     fig.update_xaxes(
@@ -133,6 +158,26 @@ with t2:
     )
     
     st.plotly_chart(fig_corr, use_container_width=True)
+
+    corr = overtime_sales[['retail_sales', 'warehouse_sales']].corr()
+    # st.write("Correlation between Retail and Warehouse Sales:")
+    st.dataframe(corr)
+
+    st.write("""
+     The moderate statistical correlation of 0.57 proves they are not perfectly linked. While there are
+     some similarities visually, they might respond to different short-term factors, suggesting the buying patterns of business 
+     licensees are different from those of the general customers.
+    """)
+
+    st.divider()
+    st.subheader("So What?")
+    st.write("""
+    The data shows that warehouse sales and retail sales do not always rise and fall together. 
+    Since their trends only moderately correlate, the strategies to manage stocks and promotions should
+    be approached differently. Especially given that warehouse sales occupied a disproportionaly amount of sales
+    at nearly 80% of the total cases of products sold, it is critical for ABS to prioritize this B2B sales
+    channel to ensure overall business health and growth.
+    """)
 
 
 
@@ -216,21 +261,21 @@ with t3:
     """)
 
     st.write("""
-    This gives us critical insights into how ABS can allocate their resource regarding suppliers. For example, 
-    having dedicated account manager for top 1-5% of suppliers, exclusive collaboration contract to secure supply, and discount on volume etc.
+    This gives us critical insights into how ABS can allocate their resources regarding suppliers. For example, 
+    having dedicated account managers for top 1-5% of suppliers, exclusive collaboration contracts to secure supply, and discount on volume etc.
 
     Given the heavy reliance on the top suppliers, ABS also needs risk mitigation plans to ensure constant supplies.
     In addition to making sure such concern is taken care of in the contract with the top providers, develop or identify "fall back" suppliers is also critical. These suppliers
-    can be from the 5% or from the remaining 95% who demonstrate a growth potential.While simple methods like comparing monthly or quarterly sales can be effective, 
+    can be from the 5% or from the remaining 95% who demonstrate a growth potential. While simple methods like comparing monthly or quarterly sales can be effective, 
     I decided to get creative and explore a more unique method.
     """)
 
     st.subheader('Identifying "Challenger" Suppliers: Can You Surge?')
     st.write("""
     I decided to define fall back suppliers by their ability to surge.
-    In this method I look at the total sales each month by supplier for 2019, and try to identify, besides the 18 top suppliers, 
+    In this method I looked at the total sales each month by supplier for 2019, and try to identify, besides the 18 top suppliers, 
     who take over a spot in the top 18 during any given month.
-    This might mean this supplier have the volume potentail to be an effective backups.
+    This might mean this supplier has the volume potentail to be an effective backup.
     """)
 
     supplier_monthly = load('data/monthly_sales_by_supplier.parquet')
@@ -289,7 +334,7 @@ with t3:
     fig_corr.update_yaxes(title_text="<b>Challenger Sales (Cases)</b>", secondary_y=False)
     st.plotly_chart(fig_corr, use_container_width=True)
 
-    st.write("""Now it seems that while the overall trend might be somewhat similar, implying a shared market effect, we can see that at multiple point
+    st.write("""Now it seems that while the overall trend might be somewhat similar, implying a shared market effect, we can see that at multiple points
     in time, when the Top 18 sales drop, the Challenger sales do surge (aka backup event). This is interesting. Lets verify by setting up a control group as well.
     """)
 
@@ -345,16 +390,16 @@ with t3:
     st.plotly_chart(fig_control, use_container_width=True)
 
     st.write("""
-    Our hypothesis seem to be right! The trend with Top 18 vs All Others are comforming, 
-    signifying a even stronger shared market effect and less backup effect.
+    Our hypothesis seems to be right! The trend with Top 18 vs All Others are conforming, 
+    signifying an even stronger shared market effect and less backup effect.
     """)
 
 
     st.subheader("Quantitative Proof: Comfirming What We Just Observed")
     st.write("""
-    Now lets verify what we just saw by checking the direction of sales changes each month.
+    Now let's verify what we just saw by checking the direction of sales changes each month.
     If the Top 18's sales fall while Challenger sales rise, it's a 'Backup Event',
-    supporting the hypothesis. We will do this by computing the sales differece between the current month
+    supporting the hypothesis. We will do this by computing the sales difference between the current month
     and then previous month for each row
     """)
 
@@ -389,6 +434,7 @@ with t3:
         title='Frequency of Monthly Sales Events',
         labels={'value': 'Number of Months', 'index': 'Event Type'}
     )
+    fig_events.update_traces(marker_color='#61AAD4')
     st.plotly_chart(fig_events, use_container_width=True)
 
     st.divider()
@@ -422,8 +468,9 @@ with t3:
     fig_control_events = px.bar(
         control_event_counts,
         title='Frequency of Monthly Sales Events (Control Group)',
-        labels={'value': 'Number of Months', 'index': 'Event Type'}
+        labels={'value': 'Number of Months', 'index': 'Event Type'},
     )
+    fig_control_events.update_traces(marker_color='#A3675B')
     st.plotly_chart(fig_control_events, use_container_width=True)
     st.subheader("Conslusion")
     st.write("To summarize the findings, we can compare the event frequencies between the two groups:")
@@ -443,7 +490,7 @@ with t3:
     st.divider()
     st.subheader("Recommendation")
     st.write("""
-    The data proves that for ABS, heavy reliance on top suppliers like "Crown Imports" does exist, which make the top challengers like
+    The data proves that for ABS, heavy reliance on top suppliers like "Crown Imports" does exist, which makes the top challengers like
     "The Country Vintner, LLC Dba Winebow" and others' contribution a lot more pivotal for business stability. I recommend ABS initiate conversations with this
     short-list of 6 suppliers to further understand what they can offer/ build the next tier of partnership as the supply chain risk mitigation plan.
     """)
@@ -454,12 +501,10 @@ with t3:
 with t4:
     st.subheader("Operational Efficiency Analysis")
     st.write("""
-        In this section, we will examine the relationship between sales, and transfers. As a recap, retail transfer is, as noted on the dataset
+        In this section, we will examine the relationship between sales, and transfers. As a recap, retail transfers are, as noted on the dataset
         description, "Cases of product transferred to DLC(ABS) dispensaries", this essentially means restocking events, so this can give us a great perspective
-        on how efficient ABS retail stores is at restocking their items. 
+        on how efficient ABS retail stores are at restocking their items. 
     """)
-
-   
 
     st.write("""
         We can do this by crafting a metric using what's available here: retail sales, and retails transfers. And since what we are
@@ -476,9 +521,14 @@ with t4:
     - Values **less than 1** suggest restocking might be too slow.
     - Values **greater than 1** imply the stores are supplying more than they are selling.
     """)
+    st.subheader("Diagnosis")
+    st.write("""
+    Lets combine this metrics into a simple interactive tool for clear visaul of restock efficiency
+    for each item.
+    """)
 
     retail_analysis = load(r'data/retail_analysis.parquet')
-    print(retail_analysis.columns)
+    item_details_2019 = load(r'data/item_details_2019.parquet') 
     retail_analysis['time'] = pd.to_datetime(retail_analysis['time'])
  
     item_type_list = retail_analysis['item_type'].unique()
@@ -489,21 +539,31 @@ with t4:
     )
 
     df_item = retail_analysis[retail_analysis['item_type'] == selected_item].sort_values(by='time')
-    st.subheader(f"Sales vs. Restocking for: {selected_item}")
+    st.markdown(f"#### Sales vs. Restocking for: {selected_item}")
 
     fig = go.Figure()
-    fig.add_trace(go.Bar(x=df_item['time'], y=df_item['retail_sales'], name='Retail Sales'))
-    fig.add_trace(go.Scatter(x=df_item['time'], y=df_item['retail_transfers'], name='Restocking Transfers', mode='lines+markers', line=dict(color='red')))
+    fig.add_trace(go.Bar(x=df_item['time'], 
+                y=df_item['retail_sales'], 
+                name='Retail Sales',
+                marker_color='#A19667',
+                marker_line_color='#F5F4EF',
+                marker_line_width=1.2
+                ))
+    fig.add_trace(go.Scatter(x=df_item['time'], y=df_item['retail_transfers'], name='Restocking Transfers', mode='lines+markers', line=dict(color='#FFFF00', width=2)))
 
     fig.update_layout(
         xaxis_title='Month of 2019',
         yaxis_title='Cases',
-        template='plotly_white',
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+        legend=dict(orientation="h", yanchor="bottom", y=1.05, xanchor="right", x=1)
+    )
+    fig.update_xaxes(
+        dtick="M1",                   
+        tickformat="%b\n%Y",             
+        range=['2018-12-15', '2019-12-31'] 
     )
     st.plotly_chart(fig, use_container_width=True)
 
-    st.subheader(f"Inventory Efficiency for {selected_item}")
+    st.markdown(f"#### Inventory Efficiency for {selected_item}")
 
     total_sales = df_item['retail_sales'].sum()
     total_transfers = df_item['retail_transfers'].sum()
@@ -518,11 +578,35 @@ with t4:
     else:
         st.metric(label=f"Annual Transfer-to-Sales Ratio", value="N/A (No Sales)")
 
+    with st.expander(f"See what products are cateogrize as '{selected_item}'"):
+        descriptions_df=item_details_2019[item_details_2019['item_type'] == selected_item]
+        st.dataframe(descriptions_df['item_description'], hide_index=True)
+
+    st.divider()
+    st.subheader("So What?")
+    st.markdown('##### From Diagnosis to Optimzation')
     st.markdown("""
-    ---
-    ### Regarding Sales Prediction
-    Your idea to project sales into 2020 is an excellent next step for a more advanced analysis. Given the sparse data for 2020 (only 4 months), you would likely need to use a time-series model that can handle missing data, or focus on creating a forecast based purely on the complete 2019 seasonal pattern. This is a great "stretch goal" for the project!
+    Products with high volume like Beer, Liquor are managed with exceptional efficiency at a ratio of
+    0.99-1.0. This makes sense because beer and liquor are the core of the business and the reason why ABS exists in the
+    first place. 
+    
+    In contrast, products like str_supply (such as shot glasses, paper bags etc) have a overwhelmingly
+    high ratio (4.21), suggesting this categories of item is significantly over-restocked. ABS should investigate into this
+    and run demand forecast for these items if not already, and re-determine strategy to clear the excessive stocks such as
+    examine if there is some reorder contract that can be adjust, or do promotions with these items such as labeling them 
+    as related 'add-ons' when customers buy alchol.
+
+    For products with a ratio that's lower than 1 such as non-alcohol (mixers, or tonic etc) items implies that 
+    there is a risk of stocking out. This can be an issue and a potential loss of profit
+    for ABS because a lack of mixers can prevent a customer from buying a bottle of liquor.
+    Combining the chart visuals we can see that at the end of the 
+    year non-alchols sales peaked, whereas the restocks are not following, while this can be a sign
+    that there is inventories thats not yet used up, it can also be a sign where inefficient restock strategies
+    exist. In this case ABS should again investigate and correct in order to further support there core sales drivers like liquor.
+
+    Finally, the 'REF' category (ratio 0.69) is a special one because if we look at the descriptions of it
+    we can see that 'REF' is a mix of miscellaneous items and customer returns. In such cases the ratio calculated
+    can not be meaningfully interpreted.
     """)
-
-
+ 
     

@@ -13,7 +13,8 @@ print("Extracting Data for Analysis...")
 # query(QUERIES['total_retail_transfers']).to_parquet('data/total_retail_transfers.parquet')
 # query(QUERIES['supplierContribution']).to_parquet('data/supplierContribution.parquet')
 # query(QUERIES['monthly_sales_by_supplier']).to_parquet('data/monthly_sales_by_supplier.parquet')
-query(QUERIES['retail_analysis']).to_parquet('data/retail_analysis.parquet')
+# query(QUERIES['retail_analysis']).to_parquet('data/retail_analysis.parquet')
+query(QUERIES['item_details_2019']).to_parquet('data/item_details_2019.parquet')
 
 
 print("Extracting Data for Overview...")

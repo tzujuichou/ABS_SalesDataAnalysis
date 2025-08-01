@@ -11,6 +11,15 @@ t1, t2, t3, t4 = st.tabs(['Abstract', 'Context', 'Data', 'Source'])
 
 with t1:
         st.header("Project Abstract")
+        st.markdown("""
+        This project analyzes one year of sales and inventory data from Montgomery 
+        County's Alcohol Beverage Services (ABS) to find actionable business insights.
+        The analysis revealed that the business is primarily a wholesale distributor, with 
+        this single channel accounting for nearly 80% of all sales. This volume is highly
+         concentrated among a small group of top suppliers, creating a significant business risk. 
+         To address this, a data-driven method was developed to identify a unique group of "Challenger" 
+         suppliers who have proven they can act as effective backups.Finally, an interactive tool was built to diagnose inventory efficiency, confirming that core products like beer and liquor are managed well, while identifying other categories that are overstocked or at risk of selling out. The project concludes with clear recommendations for managing key suppliers, partnering with emerging ones, and optimizing inventory.
+        """)
 
 with t2:
         st.header("Business Context")
@@ -45,10 +54,16 @@ with t2:
         The agency that is responsible for controlling all the alcohol beverages, is the Department of Liquor Control (DLC), which later rebranded into
         Montgomery County Alcohol Beverage Services (ABS).
         """)
+        st.write("ABS operates by having one giant central warehouse act as the main distributor to its 25 retail stores and other 1000-ish privately owned local licensed business.")
+        st.markdown("""
+        On July 1, 2019, the department officially rebranded, which was part of a 
+        comprehensive effort to modernize operations and marketing.
+        As a government entity, ABS is a major revenue source for the county, contributing nearly 
+        $350 million to the general fund between 2003 and 2018.
 
-        st.subheader("Distribution")
-        st.write("ABS operates by having one giant central warehouse act as the main distributor to its 25 retail stores and other 1000-ish privately owned local licensed business")
-        st.write("Source: https://www.nabca.org/sites/default/files/assets/files/MontgomeryCo_MD.pdf")
+        -------
+        """)
+        st.write("For more detail background about ABS please see source: https://www.nabca.org/sites/default/files/assets/files/MontgomeryCo_MD.pdf")
 
 
 
@@ -105,12 +120,20 @@ with t3:
             * **Data Storage:** The transformed data is stored in **Supabase**, a cloud-based platform that makes it easy to manage and access.
 
             * **Schema Details & Design Choices:**
-                * **`fact_transaction` (The "Fact" Table):** holding the actual sales and transfer numbers (`retail_sales`, `retail_transfers`, `warehouse_sales`) and linking to other tables. Each row here represents a specific transaction of an item from a supplier on a certain date.
-                * **`dim_date` (The "Date" Dimension):** I pulled out the `YEAR` and `MONTH` data into a dedicated date table. I also generated `month_name` (e.g., "January", "February") and `quarter` (e.g., Q1, Q2) here, which can be helpful for potential time series analysis.
-                * **`dim_item` (The "Item" Dimension):** All the item-specific details like `item_code`, `item_description`, and `item_type` were moved into this table. This avoids repeating item info for every single transaction.
-                * **`dim_supplier` (The "Supplier" Dimension):** Similarly, `supplier` names were moved to their own table to keep things clean and efficient.
+                * **`fact_transaction` (Fact):** holding the actual sales and transfer numbers (`retail_sales`, `retail_transfers`, `warehouse_sales`) and linking to other tables. Each row here represents a specific transaction of an item from a supplier on a certain date.
+                * **`dim_date` (Dimension):** I pulled out the `YEAR` and `MONTH` data into a dedicated date table. I also generated `month_name` (e.g., "January", "February") and `quarter` (e.g., Q1, Q2) here, which can be helpful for potential time series analysis.
+                * **`dim_item` (Dimension):** All the item-specific details like `item_code`, `item_description`, and `item_type` were moved into this table. This avoids repeating item info for every single transaction.
+                * **`dim_supplier` (Dimension):** Similarly, `supplier` names were moved to their own table to keep things clean and efficient.
 
             """)
+
+            st.write("""
+            For optimal dashbaord user experince, I loaded the data needed for each of the query back into the session as a parquet file so that repeated
+            connection to the database is not needed.
+            """)
+            
+
+            
 
         st.subheader("Scope of the Analysis")
 
