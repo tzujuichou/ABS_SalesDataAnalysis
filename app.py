@@ -1,14 +1,12 @@
 import streamlit as st
 import pandas as pd 
 
-hide_st_style = """
+hide_toolbar_style = """
             <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            header {visibility: hidden;}
+            div[data-testid="stToolbar"] {visibility: hidden;}
             </style>
             """
-st.markdown(hide_st_style, unsafe_allow_html=True)
+st.markdown(hide_toolbar_style, unsafe_allow_html=True)
 
 pages = st.navigation([st.Page("Overview.py"), st.Page("Analysis.py")])
 pages.run()
