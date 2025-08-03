@@ -124,7 +124,6 @@ with t3:
                 * **`dim_date` (Dimension):** I pulled out the `YEAR` and `MONTH` data into a dedicated date table, and generated `month_name` and `quarter` which can be helpful for potential time series analysis.
                 * **`dim_item` (Dimension):** `item_code`, `item_description`, and `item_type` were moved into this table, avoiding repeating item info for every single transaction.
                 * **`dim_supplier` (Dimension):** `supplier` names were moved to their own table to keep things clean and efficient.
-
             """)
 
             st.write("""
